@@ -1,1 +1,42 @@
 
+
+name: Gerar APK Mercadinho PDV
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar arquivos
+        uses: actions/checkout@v4
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Preparar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Descompactar projeto Android
+        run: |
+          unzip -o MercadinhoPDVAndroid-projeto.zip -d projeto
+
+      - name: Compilar APK
+        run: |
+          cd projeto
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Disponibilizar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MercadinhoPDV-APK
+          path: projeto/app/build/outputs/apk/debug/*.apk
